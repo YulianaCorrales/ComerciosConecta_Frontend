@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
-import { FiArrowLeft, FiLock, FiCreditCard, FiTruck, FiUser } from "react-icons/fi";
+import { FiArrowLeft, FiLock, FiCreditCard, FiTruck, FiUser, FiCheck, FiShield, FiClock } from "react-icons/fi";
 import "../store.css";
 
 interface CarritoItem {
@@ -30,14 +30,14 @@ export default function CheckoutPage() {
   const [aceptaTerminos, setAceptaTerminos] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // 🛒 Ejemplo de carrito (en producción vendría del contexto o store)
+  // 🛒 Usa las mismas imágenes que tu tienda
   const [carrito] = useState<CarritoItem[]>([
     {
       producto: {
         id: "1",
         nombre: "Crema Hidratante Nivea",
         precio: 1599, // En centavos
-        imagen: "/api/placeholder/100/100"
+        imagen: "/images/Protector.jpg" // RUTA REAL
       },
       cantidad: 2
     },
@@ -46,7 +46,16 @@ export default function CheckoutPage() {
         id: "2",
         nombre: "Shampoo Head & Shoulders",
         precio: 2250,
-        imagen: "/api/placeholder/100/100"
+        imagen: "/images/hys.avif" // RUTA REAL
+      },
+      cantidad: 1
+    },
+    {
+      producto: {
+        id: "3",
+        nombre: "Labial Matte MAC",
+        precio: 4500,
+        imagen: "/images/labial.jpg" // RUTA REAL
       },
       cantidad: 1
     }
@@ -133,28 +142,90 @@ export default function CheckoutPage() {
     }
   };
 
+  const formatPrecio = (precio: number) => {
+    return new Intl.NumberFormat('es-CO', {
+      style: 'currency',
+      currency: 'COP',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(precio / 100);
+  };
+
   // Paso 1 - Información
   const pasoInformacion = (
-    <div className="checkout-step">
-      <h3>Información de Contacto</h3>
-      <div className="form-grid">
+    <div className="checkout-step" style={{ marginBottom: '2rem' }}>
+      <div className="step-header" style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '1rem',
+        marginBottom: '2rem',
+        paddingBottom: '1rem',
+        borderBottom: '1px solid #e5e7eb'
+      }}>
+        <div className="step-icon" style={{
+          width: '3rem',
+          height: '3rem',
+          background: '#8b5cf6',
+          borderRadius: '50%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'white'
+        }}>
+          <FiUser size={20} />
+        </div>
+        <div>
+          <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1.5rem', color: '#1f2937' }}>
+            Información de Contacto
+          </h3>
+          <p style={{ margin: 0, color: '#6b7280' }}>
+            Completa tus datos para el envío y facturación
+          </p>
+        </div>
+      </div>
+      
+      <div className="form-grid" style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+        gap: '1.5rem'
+      }}>
         {[
-          { label: "Email *", type: "email", field: "email", placeholder: "tu@email.com" },
-          { label: "Nombre *", type: "text", field: "nombre", placeholder: "Tu nombre" },
-          { label: "Apellido *", type: "text", field: "apellido", placeholder: "Tu apellido" },
-          { label: "Teléfono *", type: "tel", field: "telefono", placeholder: "+57 300 123 4567" },
-          { label: "Dirección *", type: "text", field: "direccion", placeholder: "Calle 123 #45-67" },
-          { label: "Ciudad *", type: "text", field: "ciudad", placeholder: "Bogotá" },
-          { label: "Código Postal *", type: "text", field: "codigoPostal", placeholder: "110111" }
+          { label: "Email", type: "email", field: "email", placeholder: "tu@email.com" },
+          { label: "Nombre", type: "text", field: "nombre", placeholder: "Tu nombre" },
+          { label: "Apellido", type: "text", field: "apellido", placeholder: "Tu apellido" },
+          { label: "Teléfono", type: "tel", field: "telefono", placeholder: "+57 300 123 4567" },
+          { label: "Dirección", type: "text", field: "direccion", placeholder: "Calle 123 #45-67", span: 2 },
+          { label: "Ciudad", type: "text", field: "ciudad", placeholder: "Bogotá" },
+          { label: "Código Postal", type: "text", field: "codigoPostal", placeholder: "110111" }
         ].map((input) => (
-          <div key={input.field} className="form-group">
-            <label>{input.label}</label>
+          <div 
+            key={input.field} 
+            className="form-group" 
+            style={{ gridColumn: input.span === 2 ? 'span 2' : 'auto' }}
+          >
+            <label style={{
+              display: 'block',
+              marginBottom: '0.5rem',
+              fontWeight: '500',
+              color: '#374151',
+              fontSize: '0.875rem'
+            }}>
+              {input.label} *
+            </label>
             <input
               type={input.type}
               value={(formData as any)[input.field]}
               onChange={handleInputChange(input.field as keyof FormData)}
               placeholder={input.placeholder}
               required
+              style={{
+                width: '100%',
+                padding: '0.875rem 1rem',
+                border: '1px solid #d1d5db',
+                borderRadius: '8px',
+                fontSize: '0.875rem',
+                transition: 'all 0.2s'
+              }}
             />
           </div>
         ))}
@@ -164,114 +235,492 @@ export default function CheckoutPage() {
 
   // Paso 2 - Resumen y botón de pago
   const pasoResumen = (
-    <div className="checkout-step">
-      <h3>Resumen del Pedido</h3>
-      <div className="order-summary">
-        {carrito.map((item) => (
-          <div key={item.producto.id} className="order-item">
-            <img src={item.producto.imagen} alt={item.producto.nombre} className="order-item-image" />
-            <div className="order-item-info">
-              <h4>{item.producto.nombre}</h4>
-              <span>Cantidad: {item.cantidad}</span>
-            </div>
-            <span className="order-item-price">
-              ${(item.producto.precio * item.cantidad / 100).toFixed(2)}
-            </span>
-          </div>
-        ))}
+    <div className="checkout-step" style={{ marginBottom: '2rem' }}>
+      <div className="step-header" style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '1rem',
+        marginBottom: '2rem',
+        paddingBottom: '1rem',
+        borderBottom: '1px solid #e5e7eb'
+      }}>
+        <div className="step-icon" style={{
+          width: '3rem',
+          height: '3rem',
+          background: '#8b5cf6',
+          borderRadius: '50%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'white'
+        }}>
+          <FiCreditCard size={20} />
+        </div>
+        <div>
+          <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1.5rem', color: '#1f2937' }}>
+            Resumen del Pedido
+          </h3>
+          <p style={{ margin: 0, color: '#6b7280' }}>
+            Revisa tu pedido y procede al pago seguro
+          </p>
+        </div>
+      </div>
 
-        <div className="order-totals">
-          <div className="total-row">
-            <span>Subtotal</span>
-            <span>${(subtotal / 100).toFixed(2)}</span>
+      <div className="order-summary">
+        <div className="order-items" style={{ marginBottom: '2rem' }}>
+          {carrito.map((item) => (
+            <div key={item.producto.id} className="order-item" style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem',
+              padding: '1rem',
+              background: '#f9fafb',
+              borderRadius: '8px',
+              marginBottom: '0.75rem'
+            }}>
+              <div className="order-item-image" style={{
+                width: '60px',
+                height: '60px',
+                borderRadius: '6px',
+                overflow: 'hidden',
+                background: 'white',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '0.25rem'
+              }}>
+                <img 
+                  src={item.producto.imagen} 
+                  alt={item.producto.nombre}
+                  style={{
+                    width: 'auto',
+                    height: 'auto',
+                    maxWidth: '100%',
+                    maxHeight: '100%',
+                    objectFit: 'contain'
+                  }}
+                />
+              </div>
+              <div className="order-item-info" style={{ flex: 1 }}>
+                <h4 style={{ margin: '0 0 0.25rem 0', fontSize: '0.875rem', fontWeight: '600' }}>
+                  {item.producto.nombre}
+                </h4>
+                <span className="item-quantity" style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+                  Cantidad: {item.cantidad}
+                </span>
+              </div>
+              <span className="order-item-price" style={{ fontWeight: '700', color: '#059669' }}>
+                {formatPrecio(item.producto.precio * item.cantidad)}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        <div className="order-totals" style={{
+          background: '#f8fafc',
+          borderRadius: '8px',
+          padding: '1.5rem',
+          marginBottom: '1.5rem'
+        }}>
+          <div className="total-row" style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            padding: '0.5rem 0',
+            borderBottom: '1px solid #e5e7eb'
+          }}>
+            <span style={{ color: '#6b7280' }}>Subtotal</span>
+            <span>{formatPrecio(subtotal)}</span>
           </div>
-          <div className="total-row">
-            <span>Envío</span>
-            <span>{envio === 0 ? "Gratis" : `$${(envio / 100).toFixed(2)}`}</span>
+          <div className="total-row" style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            padding: '0.5rem 0',
+            borderBottom: '1px solid #e5e7eb'
+          }}>
+            <span style={{ color: '#6b7280' }}>Envìo</span>
+            <span>{envio === 0 ? "Gratis" : formatPrecio(envio)}</span>
           </div>
-          <div className="total-row">
-            <span>Impuestos</span>
-            <span>${(impuestos / 100).toFixed(2)}</span>
+          <div className="total-row" style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            padding: '0.5rem 0',
+            borderBottom: '1px solid #e5e7eb'
+          }}>
+            <span style={{ color: '#6b7280' }}>Impuestos</span>
+            <span>{formatPrecio(impuestos)}</span>
           </div>
-          <div className="total-row final">
-            <span>Total</span>
-            <span>${(total / 100).toFixed(2)}</span>
+          <div className="total-row final" style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            padding: '1rem 0 0 0',
+            marginTop: '0.5rem',
+            borderTop: '2px solid #e5e7eb'
+          }}>
+            <span style={{ fontWeight: '700', fontSize: '1.125rem' }}>Total</span>
+            <span className="total-amount" style={{ 
+              fontWeight: '800', 
+              fontSize: '1.25rem',
+              color: '#059669' 
+            }}>
+              {formatPrecio(total)}
+            </span>
           </div>
         </div>
 
-        <label className="terms-checkbox">
+        <div className="security-features" style={{
+          background: '#f0f9ff',
+          border: '1px solid #bae6fd',
+          borderRadius: '8px',
+          padding: '1rem',
+          marginBottom: '1.5rem'
+        }}>
+          <div className="security-item" style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem',
+            marginBottom: '0.5rem'
+          }}>
+            <FiShield className="security-icon" style={{ color: '#3b82f6' }} />
+            <span style={{ fontSize: '0.875rem', color: '#1e40af' }}>
+              Pago 100% seguro con encriptación SSL
+            </span>
+          </div>
+          <div className="security-item" style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem'
+          }}>
+            <FiClock className="security-icon" style={{ color: '#3b82f6' }} />
+            <span style={{ fontSize: '0.875rem', color: '#1e40af' }}>
+              Procesamiento inmediato
+            </span>
+          </div>
+        </div>
+
+        <label className="terms-checkbox" style={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: '0.75rem',
+          marginBottom: '1.5rem',
+          cursor: 'pointer'
+        }}>
           <input
             type="checkbox"
             checked={aceptaTerminos}
             onChange={(e) => setAceptaTerminos(e.target.checked)}
+            style={{ marginTop: '0.25rem' }}
           />
-          <span>
-            Acepto los <a href="/terminos">términos</a> y la{" "}
-            <a href="/privacidad">política de privacidad</a>.
+          <span style={{ fontSize: '0.875rem', color: '#4b5563' }}>
+            Acepto los <a href="/terminos" style={{ color: '#8b5cf6' }}>términos y condiciones</a> y la{" "}
+            <a href="/privacidad" style={{ color: '#8b5cf6' }}>política de privacidad</a>
           </span>
         </label>
 
         <button
-          className="btn-primary large"
+          className="checkout-btn-tienda"
           onClick={procesarPago}
           disabled={!aceptaTerminos || loading}
+          style={{
+            width: '100%',
+            padding: '1rem 2rem',
+            background: !aceptaTerminos ? '#9ca3af' : '#8b5cf6',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            fontSize: '1rem',
+            fontWeight: '600',
+            cursor: !aceptaTerminos ? 'not-allowed' : 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.75rem',
+            transition: 'all 0.2s'
+          }}
         >
-          <FiLock style={{ marginRight: "8px" }} />
-          {loading ? "Procesando..." : "Ir a Pagar"}
+          <FiLock />
+          {loading ? "Procesando..." : "Proceder al Pago Seguro"}
         </button>
       </div>
     </div>
   );
 
   return (
-    <div className="store-page">
-      <header className="store-header">
+    <div className="tienda-premium">
+      {/* Header - Igual que tienda */}
+      <header className="tienda-header">
         <div className="container">
-          <div className="header-content">
-            <button className="back-button" onClick={() => router.back()}>
-              <FiArrowLeft style={{ marginRight: "8px" }} /> Volver
+          <div className="header-content-tienda">
+            <button
+              className="back-button"
+              onClick={() => router.back()}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                padding: '0.75rem 1.5rem',
+                background: '#f1f5f9',
+                border: '1px solid #e2e8f0',
+                borderRadius: '8px',
+                color: '#4b5563',
+                fontWeight: 500,
+                cursor: 'pointer'
+              }}
+            >
+              <FiArrowLeft />
+              Volver a Tienda
             </button>
-            <div className="logo">
+            
+            <div className="brand-tienda">
               <h1>ComerciosConecta</h1>
-              <span className="store-subtitle">Finalizar Compra</span>
+              <span>Checkout Seguro</span>
+            </div>
+            
+            <div className="header-security" style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              padding: '0.75rem 1rem',
+              background: '#f0f9ff',
+              border: '1px solid #bae6fd',
+              borderRadius: '8px',
+              color: '#0369a1'
+            }}>
+              <FiShield />
+              <span style={{ fontSize: '0.875rem' }}>Conexión segura</span>
             </div>
           </div>
         </div>
       </header>
 
-      <div className="container">
-        <div className="checkout-layout">
-          <div className="checkout-progress">
+      {/* Barra de progreso */}
+      <div style={{ background: '#f8fafc', padding: '1rem 0' }}>
+        <div className="container">
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '2rem'
+          }}>
             {[1, 2].map((paso) => (
               <div
                 key={paso}
-                className={`progress-step ${paso === pasoActual ? "active" : ""} ${
-                  paso < pasoActual ? "completed" : ""
-                }`}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '0.5rem'
+                }}
               >
-                <div className="step-number">{paso}</div>
-                <span className="step-label">{paso === 1 ? "Información" : "Resumen"}</span>
+                <div style={{
+                  width: '2.5rem',
+                  height: '2.5rem',
+                  borderRadius: '50%',
+                  background: paso <= pasoActual ? '#8b5cf6' : '#d1d5db',
+                  color: 'white',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: '600',
+                  fontSize: '0.875rem'
+                }}>
+                  {paso < pasoActual ? <FiCheck size={16} /> : paso}
+                </div>
+                <span style={{
+                  fontSize: '0.875rem',
+                  fontWeight: paso === pasoActual ? '600' : '400',
+                  color: paso <= pasoActual ? '#8b5cf6' : '#6b7280'
+                }}>
+                  {paso === 1 ? 'Información' : 'Pago'}
+                </span>
               </div>
             ))}
           </div>
+        </div>
+      </div>
 
-          <div className="checkout-content">
-            {pasoActual === 1 ? pasoInformacion : pasoResumen}
-            <div className="checkout-navigation">
-              {pasoActual > 1 && (
-                <button className="btn-secondary" onClick={pasoAnterior}>
-                  Anterior
-                </button>
-              )}
+      {/* Contenido principal */}
+      <main className="main-tienda">
+        <div className="container">
+          <div className="products-header-tienda">
+            <h2>Completa tu Compra</h2>
+            <p>Sigue los pasos para finalizar tu pedido de forma segura</p>
+          </div>
+
+          <div className="cart-layout" style={{ display: 'flex', gap: '2rem', alignItems: 'flex-start' }}>
+            {/* Formulario principal */}
+            <div style={{ flex: 1, background: 'white', borderRadius: '12px', padding: '2rem' }}>
+              {pasoActual === 1 ? pasoInformacion : pasoResumen}
+              
+              {/* Navegación */}
               {pasoActual < 2 && (
-                <button className="btn-primary" onClick={siguientePaso}>
-                  Continuar
-                </button>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  marginTop: '2rem',
+                  paddingTop: '1.5rem',
+                  borderTop: '1px solid #e5e7eb'
+                }}>
+                  <button
+                    className="continue-shopping-tienda"
+                    onClick={() => router.back()}
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    className="checkout-btn-tienda"
+                    onClick={siguientePaso}
+                    style={{ background: '#8b5cf6', color: 'white', padding: '0.875rem 2rem' }}
+                  >
+                    Continuar
+                    <FiCreditCard style={{ marginLeft: '0.5rem' }} />
+                  </button>
+                </div>
               )}
+            </div>
+
+            {/* Sidebar de resumen */}
+            <div style={{ width: '350px', flexShrink: 0 }}>
+              <div className="summary-card" style={{
+                background: 'white',
+                borderRadius: '12px',
+                padding: '1.5rem',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                border: '1px solid #e5e7eb'
+              }}>
+                <h4 style={{ margin: '0 0 1.5rem 0', fontSize: '1.125rem', color: '#1f2937' }}>
+                  Resumen de Compra
+                </h4>
+                
+                <div className="order-summary-sidebar" style={{ marginBottom: '1.5rem' }}>
+                  {carrito.map((item) => (
+                    <div key={item.producto.id} className="summary-item-sidebar" style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '1rem',
+                      padding: '0.75rem',
+                      background: '#f8fafc',
+                      borderRadius: '8px',
+                      marginBottom: '0.75rem'
+                    }}>
+                      <div className="item-preview-sidebar" style={{
+                        width: '50px',
+                        height: '50px',
+                        borderRadius: '6px',
+                        overflow: 'hidden',
+                        background: 'white',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '0.25rem'
+                      }}>
+                        <img 
+                          src={item.producto.imagen} 
+                          alt={item.producto.nombre}
+                          style={{
+                            width: 'auto',
+                            height: 'auto',
+                            maxWidth: '100%',
+                            maxHeight: '100%',
+                            objectFit: 'contain'
+                          }}
+                        />
+                      </div>
+                      <div className="item-info-sidebar" style={{ flex: 1 }}>
+                        <div className="item-name-sidebar" style={{
+                          fontSize: '0.75rem',
+                          color: '#4b5563',
+                          marginBottom: '0.25rem'
+                        }}>
+                          {item.producto.nombre}
+                        </div>
+                        <div className="item-price-sidebar" style={{ 
+                          fontSize: '0.875rem',
+                          color: '#059669',
+                          fontWeight: '600'
+                        }}>
+                          {formatPrecio(item.producto.precio)} c/u
+                        </div>
+                      </div>
+                      <span style={{
+                        fontSize: '0.875rem',
+                        fontWeight: '600',
+                        color: '#6b7280'
+                      }}>
+                        x{item.cantidad}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="totals-sidebar" style={{
+                  borderTop: '1px solid #e5e7eb',
+                  paddingTop: '1.5rem'
+                }}>
+                  <div className="total-line-sidebar" style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    marginBottom: '0.75rem',
+                    fontSize: '0.875rem'
+                  }}>
+                    <span style={{ color: '#6b7280' }}>Subtotal:</span>
+                    <span>{formatPrecio(subtotal)}</span>
+                  </div>
+                  <div className="total-line-sidebar" style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    marginBottom: '0.75rem',
+                    fontSize: '0.875rem'
+                  }}>
+                    <span style={{ color: '#6b7280' }}>Envío:</span>
+                    <span>{envio === 0 ? "Gratis" : formatPrecio(envio)}</span>
+                  </div>
+                  <div className="total-line-sidebar" style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    marginBottom: '0.75rem',
+                    fontSize: '0.875rem'
+                  }}>
+                    <span style={{ color: '#6b7280' }}>Impuestos:</span>
+                    <span>{formatPrecio(impuestos)}</span>
+                  </div>
+                  <div className="total-line-sidebar grand-total" style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    marginTop: '1rem',
+                    paddingTop: '1rem',
+                    borderTop: '2px solid #e5e7eb',
+                    fontWeight: '700',
+                    fontSize: '1.125rem'
+                  }}>
+                    <span>Total:</span>
+                    <span style={{ color: '#059669' }}>{formatPrecio(total)}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Soporte */}
+              <div style={{
+                background: '#f0f9ff',
+                borderRadius: '12px',
+                padding: '1.5rem',
+                marginTop: '1rem',
+                border: '1px solid #bae6fd'
+              }}>
+                <h5 style={{ margin: '0 0 0.75rem 0', fontSize: '1rem', color: '#0369a1' }}>
+                  ¿Necesitas ayuda?
+                </h5>
+                <p style={{ margin: '0 0 1rem 0', fontSize: '0.875rem', color: '#0c4a6e' }}>
+                  Estamos aquí para ayudarte con tu compra
+                </p>
+                <div style={{ fontSize: '0.875rem', color: '#0c4a6e' }}>
+                  <div style={{ marginBottom: '0.5rem' }}>📞 +57 1 123 4567</div>
+                  <div>✉️ soporte@comerciosconecta.com</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
