@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, ChangeEvent } from "react";
-import { FiShoppingCart, FiSearch, FiStar, FiX, FiPlus, FiMinus, FiCheck } from "react-icons/fi";
+import { FiShoppingCart, FiSearch, FiStar, FiX, FiPlus, FiMinus, FiCheck, FiHeart, FiShare2, FiEye } from "react-icons/fi";
 import "./store.css";
 
 interface Producto {
@@ -35,7 +35,6 @@ export default function TiendaPage() {
   });
 
   const productos: Producto[] = [
-    
     {
       id: "2",
       nombre: "Shampoo Anticaspa Head & Shoulders",
@@ -49,7 +48,7 @@ export default function TiendaPage() {
     },
     {
       id: "3",
-      nombre: "Labial Matte MAC",
+      nombre: "Labial Matte MAC - Color Rojo Intenso",
       precio: 45000,
       imagen: "/images/labial.jpg",
       categoria: "Maquillaje",
@@ -60,7 +59,7 @@ export default function TiendaPage() {
     },
     {
       id: "4",
-      nombre: "Protector Solar 50 FPS",
+      nombre: "Protector Solar FPS 50 - Protección Avanzada",
       precio: 32000,
       precioOriginal: 38000,
       imagen: "/images/Protector.jpg",
@@ -70,14 +69,24 @@ export default function TiendaPage() {
       reviews: 167,
       descuento: 16,
       destacado: true,
+    },
+    {
+      id: "5", 
+      nombre: "Serum Facial Revitalizante - 30ml",
+      precio: 55000,
+      imagen: "/images/serum.jpg",
+      categoria: "Cuidado Piel",
+      marca: "La Roche-Posay",
+      rating: 4.7,
+      reviews: 189,
+      destacado: true,
     }
-    
   ];
 
   const categorias = [
     "Todos",
     "Cuidado Personal",
-    "Cuidado Capilar",
+    "Cuidado Capilar", 
     "Maquillaje",
     "Cuidado Piel",
     "Medicamentos",
@@ -226,54 +235,47 @@ export default function TiendaPage() {
   };
 
   return (
-    <div className="store-page">
-      {/* Header Mejorado */}
-      <header className="store-header">
-        <div className="header-content">
-          <div className="logo-section">
-            <a href="#" className="logo">
-              <h1>Comercios Conecta</h1>
-            </a>
-            <span className="store-subtitle">Tu tienda de confianza</span>
-          </div>
-
-          <div className="search-container">
-            <div className="search-bar">
+    <div className="tienda-premium">
+      {/* Header Minimalista */}
+      <header className="tienda-header">
+        <div className="container">
+          <div className="header-content-tienda">
+            <div className="brand-tienda">
+              <h1>ComerciosConecta</h1>
+              <span>Belleza & Cuidado</span>
+            </div>
+            
+            <div className="search-bar-tienda">
               <FiSearch />
               <input
                 type="text"
-                placeholder="Buscar productos, marcas..."
+                placeholder="Buscar productos..."
                 value={busqueda}
                 onChange={handleBusquedaChange}
               />
             </div>
-          </div>
 
-          <div className="header-actions">
-            <button className="icon-button">
-              <FiSearch />
-            </button>
-            <button 
-              className="cart-button"
-              onClick={() => setMostrarCarrito(true)}
-            >
-              <FiShoppingCart />
-              {carrito.length > 0 && (
-                <span className="cart-count">{carrito.length}</span>
-              )}
-            </button>
+            <div className="header-actions-tienda">
+              <button 
+                className="cart-btn-tienda"
+                onClick={() => setMostrarCarrito(true)}
+              >
+                <FiShoppingCart />
+                <span className="cart-count-tienda">{carrito.length}</span>
+              </button>
+            </div>
           </div>
         </div>
       </header>
 
-      {/* Navegación Mejorada */}
-      <nav className="store-nav">
-        <div className="nav-container">
-          <div className="nav-menu">
+      {/* Navegación Simple */}
+      <nav className="nav-tienda">
+        <div className="container">
+          <div className="nav-content-tienda">
             {categorias.map((cat) => (
               <button
                 key={cat}
-                className={`nav-link ${categoriaActiva === cat ? 'active' : ''}`}
+                className={`nav-item-tienda ${categoriaActiva === cat ? 'active' : ''}`}
                 onClick={() => setCategoriaActiva(cat)}
               >
                 {cat}
@@ -283,200 +285,245 @@ export default function TiendaPage() {
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="hero-section">
-        <div className="hero-banner">
-          <div className="hero-content">
-            <h1>Descubre tu belleza interior</h1>
-            <p>Productos de calidad premium para el cuidado personal. Envíos rápidos y precios increíbles.</p>
-            <button className="btn-primary large">
-              Explorar Productos
-            </button>
+      {/* Hero Section Impactante */}
+      <section className="hero-tienda">
+        <div className="container">
+          <div className="hero-content-tienda">
+            <div className="hero-text-tienda">
+              <h1>Belleza que Inspira Confianza</h1>
+              <p>Productos premium para realzar tu belleza natural. Calidad garantizada y envío rápido.</p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Productos Section */}
-      <section className="products-section">
-        <div className="section-header">
-          <h2>Productos Destacados</h2>
-          <p>Descubre nuestra selección de productos más populares</p>
-        </div>
+      {/* Productos con Tarjetas Mejoradas */}
+      <main className="main-tienda">
+        <div className="container">
+          <div className="products-header-tienda">
+            <h2>Nuestros Productos</h2>
+            <p>Selección cuidadosa para tu bienestar</p>
+          </div>
 
-        <div className="products-grid">
-          {productosFiltrados.map((producto) => (
-            <div key={producto.id} className="product-card">
-              <div className="product-badges">
-                {producto.descuento && (
-                  <div className="discount-badge">
-                    -{producto.descuento}%
+          <div className="products-grid-tienda">
+            {productosFiltrados.map((producto) => (
+              <div key={producto.id} className="product-card-tienda">
+                {/* Imagen con Badges Mejorados */}
+                <div className="product-image-section">
+                  <div className="image-container-tienda">
+                    <img 
+                      src={producto.imagen} 
+                      alt={producto.nombre}
+                      className="product-image-tienda"
+                    />
                   </div>
-                )}
-                {producto.destacado && (
-                  <div className="featured-badge">
-                    Destacado
+                  
+                  <div className="product-badges-tienda">
+                    {producto.descuento && (
+                      <span className="badge discount-badge-tienda">
+                        -{producto.descuento}%
+                      </span>
+                    )}
+                    {producto.destacado && (
+                      <span className="badge featured-badge-tienda">
+                        ⭐ Popular
+                      </span>
+                    )}
                   </div>
-                )}
-              </div>
 
-              <div className="product-image">
-                <img src={producto.imagen} alt={producto.nombre} />
-              </div>
-
-              <div className="product-info">
-                <div className="product-category">{producto.categoria}</div>
-                <h3 className="product-name">{producto.nombre}</h3>
-                <div className="product-brand">{producto.marca}</div>
-                
-                <div className="product-rating">
-                  <div className="stars">
-                    {renderEstrellas(producto.rating)}
+                  <div className="product-actions-tienda">
+                    <button className="action-btn-tienda wishlist-btn">
+                      <FiHeart />
+                    </button>
+                    <button className="action-btn-tienda view-btn">
+                      <FiEye />
+                    </button>
                   </div>
-                  <span className="rating-count">({producto.reviews})</span>
                 </div>
 
-                <div className="product-price">
-                  {producto.precioOriginal && (
-                    <span className="original-price">
-                      {formatPrecio(producto.precioOriginal)}
+                {/* Información del Producto Mejorada */}
+                <div className="product-info-tienda">
+                  <div className="product-category-tienda">
+                    {producto.categoria}
+                  </div>
+                  
+                  <h3 className="product-name-tienda">
+                    {producto.nombre}
+                  </h3>
+                  
+                  <div className="product-brand-tienda">
+                    {producto.marca}
+                  </div>
+
+                  <div className="product-rating-tienda">
+                    <div className="stars-tienda">
+                      {renderEstrellas(producto.rating)}
+                    </div>
+                    <span className="reviews-tienda">
+                      ({producto.reviews})
                     </span>
-                  )}
-                  <span className="current-price">
-                    {formatPrecio(producto.precio)}
-                  </span>
-                </div>
+                  </div>
 
-                <div className="product-actions">
+                  <div className="product-pricing-tienda">
+                    <div className="price-container-tienda">
+                      {producto.precioOriginal && (
+                        <span className="original-price-tienda">
+                          {formatPrecio(producto.precioOriginal)}
+                        </span>
+                      )}
+                      <span className="current-price-tienda">
+                        {formatPrecio(producto.precio)}
+                      </span>
+                    </div>
+                  </div>
+
                   <button 
-                    className="add-to-cart-btn"
+                    className="add-to-cart-btn-tienda"
                     onClick={() => agregarAlCarrito(producto)}
                   >
                     <FiShoppingCart />
-                    Agregar al Carrito
+                    Agregar
                   </button>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </section>
+            ))}
+          </div>
 
-      {/* Carrito Lateral Mejorado */}
+          {productosFiltrados.length === 0 && (
+            <div className="no-products-tienda">
+              <FiSearch size={64} />
+              <h3>No encontramos productos</h3>
+              <p>Prueba con otros términos de búsqueda</p>
+            </div>
+          )}
+        </div>
+      </main>
+
+      {/* Carrito Mejorado */}
       {mostrarCarrito && (
-        <div className="cart-overlay">
-          <div className="cart-sidebar">
-            <div className="cart-header">
-              <h3>Tu Carrito de Compras</h3>
+        <div className="cart-overlay-tienda">
+          <div className="cart-sidebar-tienda">
+            <div className="cart-header-tienda">
+              <h3>🛒 Tu Carrito</h3>
               <button 
-                className="close-cart"
+                className="close-cart-tienda"
                 onClick={() => setMostrarCarrito(false)}
               >
                 <FiX />
               </button>
             </div>
 
-            <div className="cart-items">
+            <div className="cart-content-tienda">
               {carrito.length === 0 ? (
-                <div className="empty-cart">
-                  <FiShoppingCart size={48} />
-                  <p>Tu carrito está vacío</p>
-                </div>
-              ) : (
-                carrito.map((item) => (
-                  <div key={item.producto.id} className="cart-item">
-                    <img
-                      src={item.producto.imagen}
-                      alt={item.producto.nombre}
-                      className="cart-item-image"
-                    />
-                    <div className="cart-item-info">
-                      <h4>{item.producto.nombre}</h4>
-                      <div className="cart-item-price">
-                        {formatPrecio(item.producto.precio)}
-                      </div>
-                      <div className="quantity-controls">
-                        <button
-                          onClick={() => actualizarCantidad(item.producto.id, item.cantidad - 1)}
-                        >
-                          <FiMinus />
-                        </button>
-                        <span>{item.cantidad}</span>
-                        <button
-                          onClick={() => actualizarCantidad(item.producto.id, item.cantidad + 1)}
-                        >
-                          <FiPlus />
-                        </button>
-                      </div>
-                    </div>
-                    <button 
-                      className="remove-btn"
-                      onClick={() => removerDelCarrito(item.producto.id)}
-                    >
-                      <FiX />
-                    </button>
-                  </div>
-                ))
-              )}
-            </div>
-
-            {carrito.length > 0 && (
-              <>
-                <div className="checkout-form">
-                  <h4>Información del Cliente</h4>
-                  <div className="form-group">
-                    <input
-                      type="text"
-                      placeholder="Nombre completo"
-                      value={cliente.nombre}
-                      onChange={(e) =>
-                        setCliente({ ...cliente, nombre: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="form-group">
-                    <input
-                      type="email"
-                      placeholder="Correo electrónico"
-                      value={cliente.email}
-                      onChange={(e) =>
-                        setCliente({ ...cliente, email: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="form-group">
-                    <input
-                      type="tel"
-                      placeholder="Teléfono"
-                      value={cliente.telefono}
-                      onChange={(e) =>
-                        setCliente({ ...cliente, telefono: e.target.value })
-                      }
-                    />
-                  </div>
-                </div>
-
-                <div className="cart-footer">
-                  <div className="cart-total">
-                    <span>Total:</span>
-                    <span>{formatPrecio(totalCarrito)}</span>
-                  </div>
-                  <button
-                    className="checkout-btn"
-                    onClick={handleCheckout}
-                    disabled={procesandoPago}
+                <div className="empty-cart-tienda">
+                  <FiShoppingCart size={80} />
+                  <h4>Tu carrito está vacío</h4>
+                  <p>Agrega productos increíbles</p>
+                  <button 
+                    className="continue-shopping-tienda"
+                    onClick={() => setMostrarCarrito(false)}
                   >
-                    {procesandoPago ? (
-                      <>Procesando...</>
-                    ) : (
-                      <>
-                        <FiCheck />
-                        Proceder al Pago
-                      </>
-                    )}
+                    Explorar Productos
                   </button>
                 </div>
-              </>
-            )}
+              ) : (
+                <>
+                  <div className="cart-items-tienda">
+                    {carrito.map((item) => (
+                      <div key={item.producto.id} className="cart-item-tienda">
+                        <div className="item-image-tienda">
+                          <img src={item.producto.imagen} alt={item.producto.nombre} />
+                        </div>
+                        
+                        <div className="item-details-tienda">
+                          <h4>{item.producto.nombre}</h4>
+                          <div className="item-price-tienda">
+                            {formatPrecio(item.producto.precio)}
+                          </div>
+                          
+                          <div className="quantity-controls-tienda">
+                            <button
+                              onClick={() => actualizarCantidad(item.producto.id, item.cantidad - 1)}
+                            >
+                              <FiMinus />
+                            </button>
+                            <span>{item.cantidad}</span>
+                            <button
+                              onClick={() => actualizarCantidad(item.producto.id, item.cantidad + 1)}
+                            >
+                              <FiPlus />
+                            </button>
+                          </div>
+                        </div>
+                        
+                        <button 
+                          className="remove-item-tienda"
+                          onClick={() => removerDelCarrito(item.producto.id)}
+                        >
+                          <FiX />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="checkout-section-tienda">
+                    <div className="customer-info-tienda">
+                      <h4>Información de Contacto</h4>
+                      <div className="form-tienda">
+                        <input
+                          type="text"
+                          placeholder="Nombre completo"
+                          value={cliente.nombre}
+                          onChange={(e) => setCliente({ ...cliente, nombre: e.target.value })}
+                        />
+                        <input
+                          type="email"
+                          placeholder="Email"
+                          value={cliente.email}
+                          onChange={(e) => setCliente({ ...cliente, email: e.target.value })}
+                        />
+                        <input
+                          type="tel"
+                          placeholder="Teléfono"
+                          value={cliente.telefono}
+                          onChange={(e) => setCliente({ ...cliente, telefono: e.target.value })}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="cart-total-tienda">
+                      <div className="total-line-tienda">
+                        <span>Subtotal:</span>
+                        <span>{formatPrecio(totalCarrito)}</span>
+                      </div>
+                      <div className="total-line-tienda">
+                        <span>Envío:</span>
+                        <span>Gratis</span>
+                      </div>
+                      <div className="total-line-tienda final-total-tienda">
+                        <span>Total:</span>
+                        <span>{formatPrecio(totalCarrito)}</span>
+                      </div>
+                    </div>
+
+                    <button
+                      className="checkout-btn-tienda"
+                      onClick={handleCheckout}
+                      disabled={procesandoPago}
+                    >
+                      {procesandoPago ? (
+                        "Procesando..."
+                      ) : (
+                        <>
+                          <FiCheck />
+                          Comprar Ahora
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
       )}
